@@ -48,7 +48,7 @@ Zweiter Schritt:
 
 Dritter Schritt:
 
-Ausführung des ChatApps:
+Ausführung der ChatApp:
 
 Option A: Als Webseite: 'node server.js'
 
@@ -58,5 +58,5 @@ Option B: Als Applikation: 'npx electron main.js'
 
 Test:
 
-Um zu testen, ob es funktioniert, erstelle einen anderen Nutzer oder hole einen Partner.
+Um zu testen, ob die Applikation funktioniert, erstelle einen anderen Nutzer oder hole einen Partner.
 
