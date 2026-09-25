@@ -25,7 +25,7 @@ Option A mit Git:
 
 2.'cmd' öffnen
 
-3. mit 'Git clone <Repository-URL>' aus Github klonen
+3. mit 'git clone <Repository-URL>' aus Github klonen
 
 4. Adresse kopieren: 'cd <Name des Repository-Ordners>'
 
