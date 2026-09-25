@@ -1,2 +1,13 @@
-# ChatApp
-Eine selbstentwickelte App, wo man mit anderen Nachrichten schreiben kann.
+## ChatApp:
+> **Eine Webanwendung für Messaging oder Chatten.**
+
+---
+
+## Mitwirkende
+> Ahmed Rasinlic
+
+---
+
+## Ziel:
+
+> ChatApp-Anwendung: Eine funktionale Kommunikations-App.
