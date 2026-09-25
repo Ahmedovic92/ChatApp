@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #1e1e24;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        /* LOGIN SCREEN STYLES */
+        #login-container {
+            background: #2a2b36;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            text-align: center;
+            width: 350px;
+        }
+
+        #login-container h2 {
+            margin-bottom: 20px;
+            color: #5865F2; /* Modern Discord-like blue */
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #40444b;
+            color: #fff;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus {
+            outline: 2px solid #5865F2;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            background-color: #5865F2;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background-color: #4752c4;
+        }
+
+        /* main interface  */
+        #chat-container {
+            display: none; /* javascript control */
+            width: 100vw;
+            height: 100vh;
+            grid-template-columns: 250px 1fr;
+        }
+
+        /* side bar for online users */
+        .sidebar {
+            background-color: #2f3136;
+            padding: 20px;
+            border-right: 1px solid #202225;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #b9bbbe;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        #users {
+            list-style: none;
+            overflow-y: auto;
+        }
+
+        #users li {
+            padding: 10px;
+            background: #393c43;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        /* main chat area */
+        .chat-main {
+            display: flex;
+            flex-direction: column;
+            background-color: #36393f;
+        }
+
+        #messages {
+            flex: 1;
+            padding: 20px;
+            list-style: none;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        #messages li {
+            background: #40444b;
+            padding: 10px 15px;
+            border-radius: 8px;
+            max-width: 70%;
+            word-wrap: break-word;
+            align-self: flex-start;
+        }
+
+        /* chat controls input area */
+        #chat-form {
+            padding: 20px;
+            background-color: #2f3136;
+            display: grid;
+            grid-template-columns: 180px 1fr 100px;
+            gap: 10px;
+        }
+
+        #chat-form input {
+            margin-bottom: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="login-container">
+        <h2>Mit dem Chat verbinden</h2>
+        <form id="login-form">
+            <input id="username-input" 
+                   type="text" 
+                   placeholder="Unesi svoje ime..." 
+                   required 
+                   autocomplete="off" />
+            <button type="submit">verbinden</button>
+        </form>
+    </div>
+
+    <div id="chat-container">
+        <div class="sidebar">
+            <h3>Aktive Nutzer</h3>
+            <ul id="users"></ul>
+        </div>
+
+        <div class="chat-main">
+            <ul id="messages"></ul>
+
+            <form id="chat-form">
+                <input id="to-user"
+                       type="text"
+                       placeholder="Kome šalješ poruku?"
+                       required />
+
+                <input id="chat-message"
+                       type="text"
+                       placeholder="Unesite poruku..."
+                       autocomplete="off"
+                       required />
+
+                <button type="submit">senden</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        const loginContainer = document.getElementById('login-container');
+        const chatContainer = document.getElementById('chat-container');
+        const loginForm = document.getElementById('login-form');
+        const usernameInput = document.getElementById('username-input');
+
+        // handle user login
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = usernameInput.value.trim();
+
+            if (username) {
+                // register username via socket
+                socket.emit("register", username);
+
+                // hide login screen, switch styling layout to grid, show chat layout
+                loginContainer.style.display = 'none';
+                chatContainer.style.display = 'grid';
+                
+                document.getElementById('chat-message').focus();
+            }
+        });
+
+        // send message
+        const chatForm = document.getElementById('chat-form');
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+
+            const to = document.getElementById('to-user').value.trim();
+            const input = document.getElementById('chat-message');
+            const msg = input.value.trim();
+
+            if (to === '' || msg === '') return;
+
+            socket.emit('private message', {
+                to,
+                message: msg
+            });
+
+            // append our own sent message locally so we can see it too
+            const messages = document.getElementById('messages');
+            const li = document.createElement('li');
+            li.style.alignSelf = 'flex-end'; // Put your own messages on the right side
+            li.style.backgroundColor = '#5865F2';
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            li.textContent = `[${time}] Ti -> ${to}: ${msg}`;
+            messages.appendChild(li);
+
+            input.value = '';
+            input.focus();
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        // receive message
+        socket.on('private message', (data) => {
+            const messages = document.getElementById('messages');
+            const li = document.createElement('li');
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            li.textContent = `[${time}] ${data.from}: ${data.message}`;
+
+            messages.appendChild(li);
+            messages.scrollTop = messages.scrollHeight;
+        });
+
+        // online users list
+        socket.on("users", (users) => {
+            const list = document.getElementById("users");
+            list.innerHTML = "";
+
+            users.forEach(user => {
+                const li = document.createElement("li");
+                li.textContent = user;
+                list.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>
