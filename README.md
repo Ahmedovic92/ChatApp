@@ -4,7 +4,7 @@
 ---
 
 ## Mitwirkende
-> Ahmed Rasinlic
+> Ahmed Rasinlic und sein Cousin
 
 ---
 
