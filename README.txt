@@ -56,3 +56,7 @@ Ergebnis: http://localhost:3000
 
 Option B: Als Applikation: 'npx electron main.js'
 
+Test:
+
+Um zu testen, ob es funktioniert, erstelle einen anderen Nutzer oder hole einen Partner.
+
